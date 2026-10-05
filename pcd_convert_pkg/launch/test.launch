@@ -1,0 +1,9 @@
+<!-- 加载 pcd_convert_pkg/maps/my_map 栅格地图 -->
+<launch>
+    <!-- 加载地图（map_server 读取 my_map.yaml，其中 image 指向 my_map.pgm） -->
+    <node name="map_server" pkg="map_server" type="map_server"
+          args="$(find pcd_convert_pkg)/maps/my_map.yaml" output="screen"/>
+
+    <!-- 打开 RViz 查看地图（Fixed Frame 设为 map，Add -> Map -> /map） -->
+    <node name="rviz" pkg="rviz" type="rviz" required="false"/>
+</launch>

@@ -1,0 +1,111 @@
+<!--
+    小车底盘添加雷达
+-->
+<robot name="my_laser" xmlns:xacro="http://wiki.ros.org/xacro">
+
+    <!-- 雷达支架 -->
+    <xacro:property name="support_length" value="0.15" /> <!-- 支架长度 -->
+    <xacro:property name="support_radius" value="0.01" /> <!-- 支架半径 -->
+    <xacro:property name="support_x" value="0.0" /> <!-- 支架安装的x坐标 -->
+    <xacro:property name="support_y" value="0.0" /> <!-- 支架安装的y坐标 -->
+    <xacro:property name="support_z" value="${base_link_length / 2 + support_length / 2}" /> <!-- 支架安装的z坐标:底盘高度 / 2 + 支架高度 / 2  -->
+
+    <link name="support">
+        <visual>
+            <geometry>
+                <cylinder radius="${support_radius}" length="${support_length}" />
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <material name="red">
+                <color rgba="0.8 0.2 0.0 0.8" />
+            </material>
+        </visual>
+    </link>
+
+    <joint name="support2base_link" type="fixed">
+        <parent link="base_link" />
+        <child link="support" />
+        <origin xyz="${support_x} ${support_y} ${support_z}" />
+    </joint>
+
+
+    <!-- 雷达属性 -->
+    <xacro:property name="laser_length" value="0.05" /> <!-- 雷达长度 -->
+    <xacro:property name="laser_radius" value="0.03" /> <!-- 雷达半径 -->
+    <xacro:property name="laser_x" value="0.0" /> <!-- 雷达安装的x坐标 -->
+    <xacro:property name="laser_y" value="0.0" /> <!-- 雷达安装的y坐标 -->
+    <xacro:property name="laser_z" value="${support_length / 2 + laser_length / 2}" /> <!-- 雷达安装的z坐标:支架高度 / 2 + 雷达高度 / 2  -->
+
+    <!-- 雷达关节以及link -->
+    <link name="laser">
+        <visual>
+            <geometry>
+                <cylinder radius="${laser_radius}" length="${laser_length}" />
+            </geometry>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <material name="black" />
+        </visual>
+    </link>
+
+    <joint name="laser2support" type="fixed">
+        <parent link="support" />
+        <child link="laser" />
+        <origin xyz="${laser_x} ${laser_y} ${laser_z}" />
+    </joint>
+
+
+
+
+
+    <!-- 仿真传感器配置 -->
+    <gazebo reference="laser">
+      <material>Gazebo/Blue</material>
+
+    <sensor type="ray" name="velodyne_lidar">
+        <pose>0 0 0 0 0 0</pose>
+        <!-- 激光射线可视化gazebo -->
+        <visualize>false</visualize>
+         <!-- 更新频率 -->
+        <update_rate>10</update_rate>
+        <ray>
+        <scan>
+
+            <!-- 水平方向的参数块 -->
+            <horizontal>
+           <!-- 采样点数 ——————雷达旋转一周所采样的点，这里为一周采样1800个点，或者说雷达旋转一周发射1800条射线-->
+            <samples>1800</samples>
+            <!-- 分辨率 ——————设置成1是每一个射线都会测距，设置成2是每两个射线有一个射线会测距-->
+            <resolution>1</resolution>
+            <!-- 采样范围（单位弧度） -->
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
+            </horizontal>
+
+            <!-- 垂直方向的参数块 -->
+            <vertical>
+            <samples>32</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.523599</min_angle>
+            <max_angle>0.523599</max_angle>
+            </vertical>
+        </scan>
+        <!-- 雷达的有效范围 -->
+        <range>
+            <min>0.1</min>
+            <max>10.0</max>
+        </range>
+        </ray>
+
+        <!-- 传感器插件 -->
+        <plugin name="gazebo_ros_velodyne_laser" filename="libgazebo_ros_velodyne_laser.so">
+        <topicName>/points_raw</topicName>
+        <frameName>laser</frameName>
+        <useSimTime>true</useSimTime>
+        <min_range>0.1</min_range>
+        <max_range>10.0</max_range>
+        <!-- 高斯噪音 -->
+        <gaussian_noise>0.01</gaussian_noise>
+        </plugin>
+    </sensor>
+    </gazebo>
+</robot>

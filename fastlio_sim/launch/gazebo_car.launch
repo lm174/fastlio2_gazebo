@@ -1,0 +1,33 @@
+<launch>
+    <!--将机器人xacro文件加载在参数服器中  --> 
+    <param name="robot_description" command="$(find xacro)/xacro '$(find fastlio_sim)/urdf/gazebo_car_union.xacro'" />
+
+
+
+    <!-- 启动空白世界 -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
+        <arg name="world_name" value="$(find fastlio_sim)/worlds/turtlebot3_house.world"/>
+
+    </include>
+
+    <!-- 把模型生成至gazebo中 -->
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+    args="-urdf -model my_car -param robot_description"
+    output="screen" />
+
+    <!-- 机器人状态发布器 -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+    <!-- 关节状态发布器 -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+
+
+
+
+
+  </launch>

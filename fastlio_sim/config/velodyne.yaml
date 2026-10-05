@@ -1,0 +1,36 @@
+common:
+    lid_topic:  "/points_raw"           # LiDAR点云数据的ROS话题名称
+    imu_topic:  "/imu"                  # IMU数据的ROS话题名称
+    time_sync_en: false                 # 是否启用时间同步（仅当外部时间同步不可用时开启）
+    time_offset_lidar_to_imu: 0.0       # LiDAR到IMU的时间偏移，由其他算法标定（如LI-Init），若不确定请设为0.0
+
+preprocess:
+    lidar_type: 2                       # LiDAR类型：1-Livox系列，2-Velodyne，3-Ouster
+    scan_line: 32                       # 激光雷达扫描线数
+    scan_rate: 10                        # 扫描频率，仅Velodyne需要设置，单位Hz
+    timestamp_unit: 2                   # PointCloud2中time/t字段的时间单位：0-秒，1-毫秒，2-微秒，3-纳秒
+    blind: 0.05                          # 盲区距离（米），忽略此距离内的点云
+
+mapping:
+    acc_cov: 0.1                        # 加速度计测量噪声协方差
+    gyr_cov: 0.1                        # 陀螺仪测量噪声协方差
+    b_acc_cov: 0.0001                   # 加速度计偏置随机游走协方差
+    b_gyr_cov: 0.0001                   # 陀螺仪偏置随机游走协方差
+    fov_degree:    360                  # 激光雷达视场角（度）
+    det_range:     10.0                # 点云有效检测距离（米）
+    extrinsic_est_en:  false            # 是否启用IMU-LiDAR外参在线估计
+    extrinsic_T: [ -0.03, 0, -0.165]    
+    extrinsic_R: [ 1, 0, 0,             # 从IMU坐标系到LiDAR坐标系的旋转矩阵（9维，行优先）
+                   0, 1, 0, 
+                   0, 0, 1]
+
+publish:
+    path_en:  false                     # 是否发布里程计路径
+    scan_publish_en:  true              # 是否发布点云扫描（false则关闭所有点云输出）
+    dense_publish_en: true              # false时降采样全局坐标系下的点云数量
+    scan_bodyframe_pub_en: true         # 是否在IMU本体坐标系下发布点云扫描
+
+pcd_save:
+    pcd_save_en: true                   # 是否保存点云为PCD文件
+    interval: -1                        # 每个PCD文件包含的LiDAR帧数；-1表示所有帧保存到一个文件（帧数过多可能导致内存溢出）
+    

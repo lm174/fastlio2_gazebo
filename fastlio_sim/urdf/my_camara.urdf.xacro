@@ -1,0 +1,83 @@
+<robot name="my_sensors" xmlns:xacro="http://wiki.ros.org/xacro">
+
+  <material name="silver_grey">
+    <color rgba="0.5 0.5 0.55 1.0" />
+  </material>
+
+  <!-- camera link：放在 base_link 前表面中心 -->
+  <link name="camera">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_car/meshes/camera_link.STL"
+              scale="1.0 1.0 1.0" />
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <material name="silver_grey" />
+    </visual>
+    <!-- 无碰撞 -->
+    <inertial>
+      <mass value="0.001" />
+      <inertia ixx="1e-6" ixy="0.0" ixz="0.0"
+               iyy="1e-6" iyz="0.0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <!-- 相机关节：固定在 base_link 前表面上表面 -->
+  <!-- base_link 圆柱半径 0.1m，长度 0.08m，上表面在 z=0.04 -->
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="camera" />
+    <origin xyz="0.1 0 0.065" rpy="0 0 0" /> 
+  </joint>
+
+  <!-- 相机传感器插件 + 材质 -->
+  <gazebo reference="camera">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_car/meshes/camera_link.STL"
+              scale="1.0 1.0 1.0" />
+      </geometry>
+      <material>
+        <ambient>0.5 0.5 0.55 1.0</ambient>
+        <diffuse>0.5 0.5 0.55 1.0</diffuse>
+        <specular>0.3 0.3 0.3 1</specular>
+        <emissive>0 0 0 0</emissive>
+      </material>
+    </visual>
+    <sensor type="camera" name="camera_node">
+      <update_rate>30.0</update_rate>
+      <visualize>false</visualize>      <!-- 相机传感器插件gazebo可视化 -->
+      <camera name="head">
+        <horizontal_fov>1.3</horizontal_fov>
+        <image>
+          <width>1280</width>
+          <height>720</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="gazebo_camera" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>/camera</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+</robot>

@@ -1,0 +1,33 @@
+<launch>
+  <!-- FastLIO 建图启动文件 -->
+  <!-- 雷达: Velodyne 32线, 话题: /points_raw -->
+  <!-- IMU: 话题: /imu -->
+
+    <arg name="rviz" default="true" />
+
+    <!-- 加载配置文件 -->
+    <rosparam command="load" file="$(find fastlio_sim)/config/velodyne.yaml" />
+
+    <!-- FastLIO 算法参数 -->
+    <param name="feature_extract_enable" type="bool" value="0"/> <!-- 特征提取开关，0关闭1开启 -->
+    <param name="point_filter_num" type="int" value="4"/> <!-- 点云降采样，每4个点取1个 -->
+    <param name="max_iteration" type="int" value="3" /> <!-- 最大迭代次数 -->
+    <param name="filter_size_surf" type="double" value="0.5" /> <!-- 曲面降采样体素大小(米) -->
+    <param name="filter_size_map" type="double" value="0.5" /> <!-- 地图降采样体素大小(米) -->
+    <param name="cube_side_length" type="double" value="50" /> <!-- 局部地图边长(米)，建议50-200 -->
+    <param name="runtime_pos_log_enable" type="bool" value="0" /> <!-- 实时位置日志，0关闭1开启 -->
+
+
+    <!-- FastLIO 建图节点 -->
+    <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen" />
+
+    <!-- 静态TF: 连接FastLIO坐标系(camera_init)与仿真坐标系(odom), 使小车模型和建图点云在RViz中同时显示 -->
+    <node pkg="tf" type="static_transform_publisher" name="camera_init_to_odom"
+          args="0 0 0 0 0 0 camera_init odom 100" />
+
+    <!-- RViz可视化 -->
+    <group if="$(arg rviz)">
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find fast_lio)/rviz_cfg/loam_livox.rviz" />
+    </group>
+
+</launch>

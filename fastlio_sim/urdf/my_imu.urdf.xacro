@@ -1,0 +1,48 @@
+<robot name="my_imu" xmlns:xacro="http://www.ros.org/xacro">
+  <link name="imu">
+    <visual>
+      <geometry>
+        <box size="0.01 0.01 0.01" />
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <material name="green">
+        <color rgba="0.0 1.0 0.0 0.5" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.01 0.01 0.01" />
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </collision>
+    <inertial>
+      <mass value="0.001" />
+      <inertia ixx="1.667e-08" ixy="0" ixz="0"
+               iyy="1.667e-08" iyz="0"
+               izz="1.667e-08" />
+    </inertial>
+  </link>
+
+  <joint name="imu2base_link" type="fixed">
+    <parent link="base_link" />
+    <child link="imu" />
+    <origin xyz="-0.03 0 0.05" rpy="0 0 0" />
+  </joint>
+<!-- 传感器配置 -->
+  <gazebo reference="imu">
+    <material>Gazebo/Green</material>
+    <sensor type="imu" name="imu_sensor">
+      <always_on>true</always_on>
+      <update_rate>200</update_rate>
+      <plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
+        <topicName>/imu</topicName>
+        <frameName>imu</frameName>
+        <useSimTime>true</useSimTime>
+        <bodyName>imu</bodyName>
+        <updateRateHZ>200.0</updateRateHZ>
+        <gaussianNoise>0.0</gaussianNoise>
+      </plugin>
+      <pose>0 0 0 0 0 0</pose>
+    </sensor>
+  </gazebo>
+</robot>
